@@ -1,5 +1,5 @@
-SQL Server -> Neo4j
-===================
+# SQL Server -> Neo4j
+
 
 
 The goal of this guide is to familiarize our audience with
@@ -7,8 +7,8 @@ the process in which Babel is going to tackle the Microsoft
 SQL Server to Neo4j conversion problem. 
 
 
-Selecting all of the Tables
----------------------------
+## Selecting all of the Tables
+
 
 Selecting all of the tables is easy:
 
@@ -21,8 +21,8 @@ However this won't exactly cut it for what we are trying
 to do with the database. We are going to need more information!
 
 
-Selecting all of the Tables and their Columns
----------------------------------------------
+## Selecting all of the Tables and their Columns
+
 
 How about getting all of the column names to go along with
 all of the tables?
@@ -37,8 +37,8 @@ Now we're talking! We are getting closer to having enough information
 to define our schema for our nodes.
 
 
-Selecting Foreign Key Info
---------------------------
+## Selecting Foreign Key Info
+
 
 One of the things we haven't gone over yet is relationships. How
 are we going to define relationships between nodes? 
@@ -74,8 +74,8 @@ WHERE  C.CONSTRAINT_TYPE = 'FOREIGN KEY'
 
 
 
-Merging the Two
----------------
+## Merging the Two
+
 
 We can actually merge the last two queries:
 
@@ -119,9 +119,34 @@ ORDER BY INFO.TABLE_NAME, INFO.COLUMN_NAME
 This consolidation of data is what we are going to need to consider when
 designing the algorithm for distinguishing potential nodes from relationships.
 
+## Writing Nodes
 
-Moving on to Primary Keys
--------------------------
+Now that we can decide what Tables are going to be made into nodes,
+we should start defining the process on how that should happen.
+
+Creating nodes in Cypher is actually 
+[really simple](http://docs.neo4j.org/chunked/milestone/query-create.html). 
+Lets show an example to drive the point home:
+
+```Cypher
+CREATE n = {name : 'Frank', title : 'Developer'}
+```
+
+
+## Writing Relationships
+
+Creating relationships in Cypher is also 
+[simple](http://docs.neo4j.org/chunked/milestone/query-create.html).
+
+```Cypher
+START a=node(1), b=node(2)
+CREATE a-[r:RELTYPE {name : a.name + '<->' + b.name }]->b
+RETURN r
+```
+
+
+## Moving on to Primary Keys
+
 
 ```SQL
 SELECT tc.TABLE_NAME, COLUMN_NAME
@@ -130,4 +155,11 @@ JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu
 ON tc.CONSTRAINT_NAME = ccu.Constraint_name
 WHERE tc.CONSTRAINT_TYPE = 'Primary Key'
 ```
+
+
+## Creating indexes in Cypher
+
+As stated in [The Neo4j Manual](http://docs.neo4j.org/chunked/milestone/indexing-create.html):
+
+> An index is created if it doesn’t exist when you ask for it. Unless you give it a custom configuration, it will be created with default configuration and backend.
 
