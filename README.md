@@ -1,3 +1,4 @@
-Babel
+# Babel
 
-Sending queries across different databases without worrying about language.
+Babel is for transforming a Microsoft SQL Server database into a Neo4j database.
+

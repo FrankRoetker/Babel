@@ -140,7 +140,7 @@ Creating relationships in Cypher is also
 
 ```Cypher
 START a=node(1), b=node(2)
-CREATE a-[r:RELTYPE {name : a.name + '<->' + b.name }]->b
+CREATE a<-[r:FRIENDS {name : a.name + '<->' + b.name }]->b
 RETURN r
 ```
 
@@ -161,5 +161,20 @@ WHERE tc.CONSTRAINT_TYPE = 'Primary Key'
 
 As stated in [The Neo4j Manual](http://docs.neo4j.org/chunked/milestone/indexing-create.html):
 
-> An index is created if it doesn’t exist when you ask for it. Unless you give it a custom configuration, it will be created with default configuration and backend.
+> An index is created if it doesn’t exist when you ask for it. 
+> Unless you give it a custom configuration, it will be created 
+> with default configuration and backend.
+
+```Cypher
+CREATE INDEX ON :Person(name);
+```
+
+We can also put [labels](http://blog.neo4j.org/2013/04/nodes-are-people-too.html)
+onto the nodes for giving them their type and index. In this case, we would be
+giving nodes a label based on their table name.
+
+```Cypher
+CREATE (n:Person = {name : 'Frank', title : 'Developer'})
+RETURN n;
+```
 
