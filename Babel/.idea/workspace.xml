@@ -2,39 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="45f61b00-95b0-443f-b251-209ff23409b2" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/concurrentlinkedhashmap-lru-1.3.1.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/geronimo-jta_1.1_spec-1.1.1.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/lucene-core-3.6.2.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-backup-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-cluster-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-com-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-consistency-check-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-cypher-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-graph-algo-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-graph-matching-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-ha-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-jmx-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-kernel-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-lucene-index-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-management-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-shell-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/neo4j-udc-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/netty-3.6.3.Final.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/org.apache.servicemix.bundles.jline-0.9.94_1.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/scala-library-2.10.0.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/server-api-2.0.0-M02.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/slf4j-api-1.6.2.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/README.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/neo4j_2_0_lib.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/babel/Main.java" afterPath="$PROJECT_DIR$/src/babel/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/untitled104.iml" afterPath="$PROJECT_DIR$/untitled104.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Babel.iws" />
     <ignored path=".idea/workspace.xml" />
     <file path="/Dummy.txt" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367198786879" ignored="false" />
     <file path="/untitled104.iml" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367198753712" ignored="false" />
-    <file path="/Main.java" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367200000879" ignored="false" />
+    <file path="/Main.java" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367203140650" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +73,7 @@
       <file leaf-file-name="Main.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/babel/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="7" column="23" selection-start="163" selection-end="163" vertical-scroll-proportion="0.13869464">
+            <state line="16" column="25" selection-start="648" selection-end="648" vertical-scroll-proportion="0.49275362">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -205,6 +180,7 @@
     <property name="FullScreen" value="false" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
+    <property name="dynamic.classpath" value="false" />
     <property name="Downloaded.Files.Path" value="C:\Users\jordo_000\Documents\Babel\Babel\lib" />
     <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
@@ -245,6 +221,11 @@
     <list size="1">
       <item index="0" class="java.lang.String" itemvalue="Application.Main" />
     </list>
+    <recent_temporary>
+      <list size="1">
+        <item index="0" class="java.lang.String" itemvalue="Application.Main" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
   <component name="SvnConfiguration" maxAnnotateRevisions="500" myUseAcceleration="nothing" myAutoUpdateAfterCommit="false" cleanupOnStartRun="false" SSL_PROTOCOLS="all">
@@ -274,7 +255,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="960" y="40" width="960" height="1040" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -284,13 +265,14 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="CDI" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25501114" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25501114" sideWeight="0.670068" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2494432" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32993197" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -388,7 +370,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/babel/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="23" selection-start="163" selection-end="163" vertical-scroll-proportion="0.13869464">
+        <state line="16" column="25" selection-start="648" selection-end="648" vertical-scroll-proportion="0.49275362">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
