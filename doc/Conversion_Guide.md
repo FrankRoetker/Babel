@@ -24,6 +24,13 @@ Neo4j. These are ordered in order of complexity, not number of
 Foreign keys... This is why [2 Foreign Keys](#2ForeignKeys) comes before 
 [1 Foreign Key](#1ForeignKey).
 
+In this guide, I will be using an [URBEX](http://en.wikipedia.org/wiki/Urban_exploration) 
+database as an example. You don't need to have an understanding of
+what the database will represent or what the data means to understand
+how the conversions are going to be handled.
+
+![URBEX ERD](./URBEX_ERD.png "URBEX ERD")
+
 ### 0 Foreign Keys -> Node <a id="0ForeignKeys"></a>
 
 If a table has 0 Foreign keys, then a Node will be created.
