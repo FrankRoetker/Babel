@@ -4,16 +4,45 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.shell.util.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Main {
 
     public static void main(String[] args) {
+        sqlTesting();
+    }
+
+    private static void sqlTesting()
+    {
+        String connectionURL = "jdbc:sqlserver://frank-server.reshall.rose-hulman.edu;database=URBEX;user=sa;password=TotallyMath!";
+        String query = "SELECT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS ORDER BY TABLE_NAME, ORDINAL_POSITION";
+        try {
+
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection conn = DriverManager.getConnection(connectionURL);
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            while (rs.next())
+            {
+                System.out.println(rs.getString("TABLE_NAME") + " : " + rs.getString("COLUMN_NAME"));
+            }
+
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+    }
+
+    private static void neoTesting()
+    {
         String path = "http://frank-server.reshall.rose-hulman.edu:7474/db/data/";
         String cypherUri = path + "cypher";
 
