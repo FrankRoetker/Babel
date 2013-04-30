@@ -14,7 +14,13 @@ import java.util.Map;
 public class Main {
 
     public static void main(String[] args) {
-        sqlTesting();
+        //sqlTesting();
+        Converter c = Converter.GetInstance();
+
+        String connectionURL = "jdbc:sqlserver://frank-server.reshall.rose-hulman.edu;database=URBEX;user=sa;password=TotallyMath!";
+        c.SetSQLServerConnectionString(connectionURL);
+        c.SetNeo4jConnectionString("http://babel.reshall.rose-hulman.edu:7474/db/data/");
+        c.GrabSQLServerData();
     }
 
     private static void sqlTesting()
