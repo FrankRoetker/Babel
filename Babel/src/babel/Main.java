@@ -8,7 +8,9 @@ import org.neo4j.shell.util.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class Main {
@@ -19,9 +21,27 @@ public class Main {
 
         String connectionURL = "jdbc:sqlserver://frank-server.reshall.rose-hulman.edu;database=URBEX;user=sa;password=TotallyMath!";
         c.SetSQLServerConnectionString(connectionURL);
-        c.SetNeo4jConnectionString("http://babel.reshall.rose-hulman.edu:7474/db/data/");
-        c.GrabSQLServerData();
+        c.SetNeo4jConnectionString("http://babel.csse.rose-hulman.edu:7474/db/data/");
+        Map<String, Table> tables = c.GrabSQLServerTableInfo();
+
+        Iterator it = tables.entrySet().iterator();
+        //try to get the base tables into the Neo4j database
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry)it.next();
+            Table t = (Table) pairs.getValue();
+
+            if(t.Type == Table.TableType.base){
+                c.ConvertBaseTable(t);
+            }
+
+            it.remove(); // avoids a ConcurrentModificationException
+        }
     }
+
+    //For Testing Purposes, Purging a Neo4j Database is done like this:
+    //START n = node(*) MATCH n-[r?]-() WHERE ID(n)>0 DELETE n, r;
+    //NOTE: DO NOT DELETE THE ROOT NODE
+
 
     private static void sqlTesting()
     {

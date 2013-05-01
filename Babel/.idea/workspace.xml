@@ -2,20 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="45f61b00-95b0-443f-b251-209ff23409b2" name="Default" comment="SuccessfullySuccessfully">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/babel/Converter.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/babel/Attribute.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/babel/Table.java" />
+      <change type="DELETED" beforePath="D:\Workspace\Babel\doc\URBEX_ERD.png" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../doc/Conversion_Guide.md" afterPath="$PROJECT_DIR$/../doc/Conversion_Guide.md" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/babel/Converter.java" afterPath="$PROJECT_DIR$/src/babel/Converter.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/babel/Main.java" afterPath="$PROJECT_DIR$/src/babel/Main.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dataSources.xml" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/untitled104.iml" afterPath="$PROJECT_DIR$/untitled104.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="Babel.iws" />
     <ignored path=".idea/workspace.xml" />
-    <file path="/Dummy.txt" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367297320262" ignored="false" />
+    <file path="/Dummy.txt" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367373414251" ignored="false" />
     <file path="/untitled104.iml" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367198753712" ignored="false" />
-    <file path="/Main.java" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367298280808" ignored="false" />
+    <file path="/Main.java" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367358396685" ignored="false" />
     <file path="/Convert.java" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367295139548" ignored="false" />
-    <file path="/Converter.java" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367298016467" ignored="false" />
+    <file path="/Converter.java" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367373643810" ignored="false" />
+    <file path="/Attribute.java" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367348337124" ignored="false" />
+    <file path="/Table.java" changelist="45f61b00-95b0-443f-b251-209ff23409b2" time="1367354264809" ignored="false" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,7 +38,38 @@
     <sortChildren value="false" />
   </component>
   <component name="DebuggerManager">
-    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
+    <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true">
+      <breakpoint url="file://$PROJECT_DIR$/src/babel/Converter.java" line="187" class="babel.Converter" package="babel">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/babel/Converter.java" line="198" class="babel.Converter" package="babel">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="REMOVE_AFTER_HIT" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="SUSPEND" value="true" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="true" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </line_breakpoints>
     <breakpoint_any default_suspend_policy="SuspendAll" default_condition_enabled="true">
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -72,23 +106,7 @@
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
     </breakpoint_any>
-    <line_breakpoints default_suspend_policy="SuspendAll" default_condition_enabled="true">
-      <breakpoint url="file://$PROJECT_DIR$/src/babel/Converter.java" line="56" class="babel.Converter" package="babel">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="REMOVE_AFTER_HIT" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="SUSPEND" value="true" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="true" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-    </line_breakpoints>
+    <ui_properties default_suspend_policy="SuspendAll" default_condition_enabled="true" />
     <breakpoint_rules />
     <ui_properties />
   </component>
@@ -98,25 +116,38 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Main.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Main.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/babel/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="89" selection-start="763" selection-end="763" vertical-scroll-proportion="-2.68">
-              <folding>
-                <element signature="e#2173#2189#0" expanded="true" />
-              </folding>
+            <state line="56" column="29" selection-start="2108" selection-end="2108" vertical-scroll-proportion="1.2066246">
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Converter.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Converter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/babel/Converter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="55" column="31" selection-start="1721" selection-end="1721" vertical-scroll-proportion="0.3941998">
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#2535#2551#0" expanded="true" />
-              </folding>
+            <state line="19" column="17" selection-start="540" selection-end="540" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Attribute.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/babel/Attribute.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="9" column="24" selection-start="196" selection-end="196" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Table.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/babel/Table.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="26" column="42" selection-start="549" selection-end="549" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -149,8 +180,10 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/src/babel/Convert.java" />
-        <option value="$PROJECT_DIR$/src/babel/Converter.java" />
+        <option value="$PROJECT_DIR$/src/babel/Attribute.java" />
+        <option value="$PROJECT_DIR$/src/babel/Table.java" />
         <option value="$PROJECT_DIR$/src/babel/Main.java" />
+        <option value="$PROJECT_DIR$/src/babel/Converter.java" />
       </list>
     </option>
   </component>
@@ -187,7 +220,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -227,6 +259,7 @@
         </subPane>
       </pane>
       <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -266,7 +299,13 @@
       <option name="PASS_PARENT_ENVS" value="true" />
       <module name="untitled104" />
       <envs />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
       <RunnerSettings RunnerId="Run" />
+      <ConfigurationWrapper RunnerId="Debug" />
       <ConfigurationWrapper RunnerId="Run" />
       <method />
     </configuration>
@@ -334,20 +373,20 @@
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25453576" sideWeight="0.67107946" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39918533" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32977587" sideWeight="0.67209774" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.12219851" sideWeight="0.67107946" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18409818" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3286991" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.18409818" sideWeight="0.67209774" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32790223" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3292683" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="CDI" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32962137" sideWeight="0.670068" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -420,22 +459,24 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/untitled104.iml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="14" column="0" selection-start="666" selection-end="666" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/babel/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#2173#2189#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/babel/Converter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="26" column="0" selection-start="654" selection-end="654" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#2535#2551#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -449,9 +490,7 @@
     <entry file="file://$PROJECT_DIR$/src/babel/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#2173#2189#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -465,9 +504,7 @@
     <entry file="file://$PROJECT_DIR$/src/babel/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#2173#2189#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -481,9 +518,7 @@
     <entry file="file://$PROJECT_DIR$/src/babel/Main.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="e#2173#2189#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -494,6 +529,11 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$PROJECT_DIR$/SQL/sqljdbc4-4.0.2206.100.jar!/com/microsoft/sqlserver/jdbc/SQLServerResultSet.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="286" column="28" selection-start="15895" selection-end="15895" vertical-scroll-proportion="0.02852349" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/untitled104.iml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="14" column="0" selection-start="666" selection-end="666" vertical-scroll-proportion="0.0">
@@ -501,22 +541,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/babel/Main.java">
+    <entry file="file://$PROJECT_DIR$/src/babel/Table.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="89" selection-start="763" selection-end="763" vertical-scroll-proportion="-2.68">
-          <folding>
-            <element signature="e#2173#2189#0" expanded="true" />
-          </folding>
+        <state line="26" column="42" selection-start="549" selection-end="549" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/babel/Attribute.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="9" column="24" selection-start="196" selection-end="196" vertical-scroll-proportion="0.0">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/babel/Converter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="55" column="31" selection-start="1721" selection-end="1721" vertical-scroll-proportion="0.3941998">
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#2535#2551#0" expanded="true" />
-          </folding>
+        <state line="19" column="17" selection-start="540" selection-end="540" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/babel/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="56" column="29" selection-start="2108" selection-end="2108" vertical-scroll-proportion="1.2066246">
+          <folding />
         </state>
       </provider>
     </entry>

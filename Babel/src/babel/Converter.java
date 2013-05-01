@@ -3,9 +3,13 @@ package babel;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
 import org.neo4j.shell.util.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,10 +46,11 @@ public class Converter {
         Neo4jConnectionString = neo4jConnectionString;
     }
 
-    public void GrabSQLServerData() {
+    public Map<String, ArrayList<String>> GrabSQLServerTables() {
         String query = "SELECT TABLE_NAME, COLUMN_NAME\n" +
-                "FROM INFORMATION_SCHEMA.COLUMNS\n" +
-                "ORDER BY TABLE_NAME, ORDINAL_POSITION";
+                       "FROM INFORMATION_SCHEMA.COLUMNS\n" +
+                       "ORDER BY TABLE_NAME, ORDINAL_POSITION";
+        Map<String, ArrayList<String>> tables = new HashMap<String, ArrayList<String>>();
 
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -54,7 +59,15 @@ public class Converter {
             ResultSet rs = statement.executeQuery(query);
 
             while (rs.next()) {
-                System.out.println(rs.getString("TABLE_NAME") + " : " + rs.getString("COLUMN_NAME"));
+                //System.out.println(rs.getString("TABLE_NAME") + " : " + rs.getString("COLUMN_NAME"));
+                if(!tables.containsKey(rs.getString("TABLE_NAME"))){
+                    ArrayList<String> Attr = new ArrayList<String>();
+                    Attr.add(rs.getString("COLUMN_NAME"));
+                    tables.put(rs.getString("TABLE_NAME"), Attr);
+                }
+                else{
+                    tables.get(rs.getString("COLUMN_NAME")).add(rs.getString("COLUMN_NAME"));
+                }
             }
 
             conn.close();
@@ -63,39 +76,233 @@ public class Converter {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
+
+        return tables;
     }
 
-    public void AddNode(Map<String, String> Vals, ArrayList<String> Attr, String TableName) {
-        //String path = "http://frank-server.reshall.rose-hulman.edu:7474/db/data/";
-        String cypherUri = Neo4jConnectionString + "cypher";
+    public Map<String, Table> GrabSQLServerTableInfo() {
+        String query = "SELECT INFO.TABLE_NAME, INFO.COLUMN_NAME, \n" +
+                "       FK.FKTABLE_NAME, FK.FKCOLUMN_NAME \n" +
+                "FROM\n" +
+                "\n" +
+                "(SELECT TABLE_NAME, COLUMN_NAME\n" +
+                "        FROM INFORMATION_SCHEMA.COLUMNS) AS INFO\n" +
+                "\n" +
+                "LEFT OUTER JOIN\n" +
+                "\n" +
+                "(\n" +
+                "  SELECT C.TABLE_NAME [TABLE_NAME], \n" +
+                "         KCU.COLUMN_NAME [COLUMN_NAME],\n" +
+                "         C2.TABLE_NAME [FKTABLE_NAME], \n" +
+                "         KCU2.COLUMN_NAME [FKCOLUMN_NAME]\n" +
+                "  FROM   INFORMATION_SCHEMA.TABLE_CONSTRAINTS C \n" +
+                "         INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU \n" +
+                "           ON C.CONSTRAINT_SCHEMA = KCU.CONSTRAINT_SCHEMA \n" +
+                "              AND C.CONSTRAINT_NAME = KCU.CONSTRAINT_NAME \n" +
+                "         INNER JOIN INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS RC \n" +
+                "           ON C.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA \n" +
+                "              AND C.CONSTRAINT_NAME = RC.CONSTRAINT_NAME \n" +
+                "         INNER JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS C2 \n" +
+                "           ON RC.UNIQUE_CONSTRAINT_SCHEMA = C2.CONSTRAINT_SCHEMA \n" +
+                "              AND RC.UNIQUE_CONSTRAINT_NAME = C2.CONSTRAINT_NAME \n" +
+                "         INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU2 \n" +
+                "           ON C2.CONSTRAINT_SCHEMA = KCU2.CONSTRAINT_SCHEMA \n" +
+                "              AND C2.CONSTRAINT_NAME = KCU2.CONSTRAINT_NAME \n" +
+                "              AND KCU.ORDINAL_POSITION = KCU2.ORDINAL_POSITION \n" +
+                "  WHERE  C.CONSTRAINT_TYPE = 'FOREIGN KEY'\n" +
+                ") AS FK\n" +
+                "\n" +
+                "ON FK.TABLE_NAME = INFO.TABLE_NAME\n" +
+                "   AND FK.COLUMN_NAME = INFO.COLUMN_NAME\n" +
+                "ORDER BY INFO.TABLE_NAME, INFO.COLUMN_NAME";
+        Map<String, Table> tables = new HashMap<String, Table>();
 
-        JSONObject jsonObject = new JSONObject();
         try {
-            Map<String, String> params = new HashMap<String, String>();
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection conn = DriverManager.getConnection(SQLServerConnectionString);
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(query);
 
-            //CREATE (n:TableName = {Attr1 : Vals1, Attr2 : Vals2, ...})
-            //RETURN n;
-            String query = "CREATE (n:" + TableName + " = {";
-            for (int i = 0; i < Attr.size(); i++) {
-                query += Attr.get(i) + " : '" + Vals.get(Attr.get(i)) + "'";
-                if(Attr.size() > i+1) query += ", ";
+            while (rs.next()) {
+                String val = rs.getString("FKTABLE_NAME");
+                boolean fk = rs.getString("FKTABLE_NAME") == null;
+                Attribute Attr = new Attribute(rs.getString("COLUMN_NAME"),
+                        fk ? Attribute.AttributeType.base : Attribute.AttributeType.foriegnkey);
+
+                if(fk){
+                    Attr.SetFKConstraint(rs.getString("FKTABLE_NAME"), rs.getString("FKCOLUMN_NAME"));
+                }
+
+                if(!tables.containsKey(rs.getString("TABLE_NAME"))){
+                    Table newTable = new Table(rs.getString("TABLE_NAME"));
+                    newTable.AddAttribute(Attr);
+                    tables.put(rs.getString("TABLE_NAME"), newTable);
+                }
+                else{
+                    Table table = tables.get(rs.getString("TABLE_NAME"));
+                    table.AddAttribute(Attr);
+                }
             }
-            query += "}) RETURN n";
 
-            jsonObject.put("query", query);
-            jsonObject.put("params", params);
-        } catch (Exception e) {
-            e.printStackTrace();
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
-        WebResource resource = Client.create().resource(cypherUri);
+        return tables;
+    }
 
-        ClientResponse post = resource.accept(MediaType.APPLICATION_JSON)
-                .type(MediaType.APPLICATION_JSON)
-                .entity(jsonObject.toString())
-                .post(ClientResponse.class);
+    public void ConvertBaseTable(Table table){
+        System.out.println("Starting to convert: " + table.TableName);
+        String query = "SELECT *\n" +
+                       "FROM [" + table.TableName + "];";
+        Map<String, String> Vals = new HashMap<String, String>();
 
-        System.out.println(String.format("Accept on [%s], status code [%d]", cypherUri, post.getStatus()));
-        post.close();
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection conn = DriverManager.getConnection(SQLServerConnectionString);
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            while (rs.next()) {
+                for(Attribute a : table.Attr){
+                    Vals.put(a.Name, rs.getString(a.Name));
+                }
+                AddNode(Vals, table.Attr, table.TableName);
+                Vals = new HashMap<String, String>();
+            }
+
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        System.out.println("Finished converting: " + table.TableName);
+    }
+
+    public void AddNode(Map<String, String> Vals, ArrayList<Attribute> Attr, String TableName) {
+        URI node = createNode();
+        for(Attribute property : Attr){
+            addProperty(node, property.Name, Vals.get(property.Name));
+        }
+    }
+
+    public void AddRelationship(Map<String, String> Vals, ArrayList<String> Attr,
+                                String TableName, URI node1, URI node2){
+
+    }
+
+    private URI createNode(){
+        final String nodeEntryPointUri = Neo4jConnectionString + "node";
+
+        WebResource resource = Client.create()
+                .resource( nodeEntryPointUri );
+
+        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+                .type( MediaType.APPLICATION_JSON )
+                .entity( "{}" )
+                .post( ClientResponse.class );
+
+        final URI location = response.getLocation();
+        response.close();
+
+        return location;
+    }
+
+    private void addProperty(URI nodeUri, String propertyName, String propertyValue){
+        String propertyUri = nodeUri.toString() + "/properties/" + propertyName;
+        // http://localhost:7474/db/data/node/{node_id}/properties/{property_name}
+
+        if(propertyValue == null) return;
+
+        WebResource resource = Client.create()
+                .resource( propertyUri );
+        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+                .type( MediaType.APPLICATION_JSON )
+                .entity( "\"" + propertyValue + "\"" )
+                .put( ClientResponse.class );
+    }
+
+    private static URI addRelationship( URI startNode, URI endNode,
+                                        String relationshipType, String jsonAttributes )
+            throws URISyntaxException
+    {
+        URI fromUri = new URI( startNode.toString() + "/relationships" );
+        String relationshipJson = generateJsonRelationship( endNode,
+                relationshipType, jsonAttributes );
+
+        WebResource resource = Client.create()
+                .resource( fromUri );
+        // POST JSON to the relationships URI
+        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+                .type( MediaType.APPLICATION_JSON )
+                .entity( relationshipJson )
+                .post( ClientResponse.class );
+
+        final URI location = response.getLocation();
+        System.out.println( String.format(
+                "POST to [%s], status code [%d], location header [%s]",
+                fromUri, response.getStatus(), location.toString() ) );
+
+        response.close();
+        return location;
+    }
+
+    private static String generateJsonRelationship( URI endNode,
+                                                    String relationshipType, String... jsonAttributes )
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append( "{ \"to\" : \"" );
+        sb.append( endNode.toString() );
+        sb.append( "\", " );
+
+        sb.append( "\"type\" : \"" );
+        sb.append( relationshipType );
+        if ( jsonAttributes == null || jsonAttributes.length < 1 )
+        {
+            sb.append( "\"" );
+        }
+        else
+        {
+            sb.append( "\", \"data\" : " );
+            for ( int i = 0; i < jsonAttributes.length; i++ )
+            {
+                sb.append( jsonAttributes[i] );
+                if ( i < jsonAttributes.length - 1 )
+                { // Miss off the final comma
+                    sb.append( ", " );
+                }
+            }
+        }
+
+        sb.append( " }" );
+        return sb.toString();
+    }
+
+    private static void addMetadataToProperty( URI relationshipUri,
+                                               String name, String value ) throws URISyntaxException
+    {
+        URI propertyUri = new URI( relationshipUri.toString() + "/properties" );
+        String entity = toJsonNameValuePairCollection( name, value );
+        WebResource resource = Client.create()
+                .resource( propertyUri );
+        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+                .type( MediaType.APPLICATION_JSON )
+                .entity( entity )
+                .put( ClientResponse.class );
+
+        System.out.println( String.format(
+                "PUT [%s] to [%s], status code [%d]", entity, propertyUri,
+                response.getStatus() ) );
+        response.close();
+    }
+
+    private static String toJsonNameValuePairCollection( String name,
+                                                         String value )
+    {
+        return String.format( "{ \"%s\" : \"%s\" }", name, value );
     }
 }
