@@ -19,12 +19,14 @@ public class Table {
 
     public TableType Type;
     public ArrayList<Attribute> Attr;
+    public ArrayList<String> Keys;
     public String TableName;
 
     public Table(String name){
         TableName = name;
         Type = TableType.base;
         Attr = new ArrayList<Attribute>();
+        Keys = new ArrayList<String>();
     }
 
     public void AddAttribute(Attribute a){

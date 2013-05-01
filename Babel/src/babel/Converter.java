@@ -3,9 +3,6 @@ package babel;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.factory.GraphDatabaseBuilder;
-import org.neo4j.shell.util.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
 import java.net.URI;
@@ -44,40 +41,6 @@ public class Converter {
 
     public void SetNeo4jConnectionString(String neo4jConnectionString) {
         Neo4jConnectionString = neo4jConnectionString;
-    }
-
-    public Map<String, ArrayList<String>> GrabSQLServerTables() {
-        String query = "SELECT TABLE_NAME, COLUMN_NAME\n" +
-                       "FROM INFORMATION_SCHEMA.COLUMNS\n" +
-                       "ORDER BY TABLE_NAME, ORDINAL_POSITION";
-        Map<String, ArrayList<String>> tables = new HashMap<String, ArrayList<String>>();
-
-        try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            Connection conn = DriverManager.getConnection(SQLServerConnectionString);
-            Statement statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery(query);
-
-            while (rs.next()) {
-                //System.out.println(rs.getString("TABLE_NAME") + " : " + rs.getString("COLUMN_NAME"));
-                if(!tables.containsKey(rs.getString("TABLE_NAME"))){
-                    ArrayList<String> Attr = new ArrayList<String>();
-                    Attr.add(rs.getString("COLUMN_NAME"));
-                    tables.put(rs.getString("TABLE_NAME"), Attr);
-                }
-                else{
-                    tables.get(rs.getString("COLUMN_NAME")).add(rs.getString("COLUMN_NAME"));
-                }
-            }
-
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-
-        return tables;
     }
 
     public Map<String, Table> GrabSQLServerTableInfo() {
@@ -151,6 +114,39 @@ public class Converter {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
 
+        return GrabSQLServerIndexes(tables);
+    }
+
+    public Map<String, Table> GrabSQLServerIndexes(Map<String, Table> tables) {
+        String query = "SELECT tc.TABLE_NAME, COLUMN_NAME\n" +
+                       "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc\n" +
+                       "JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu \n" +
+                       "ON tc.CONSTRAINT_NAME = ccu.Constraint_name\n" +
+                       "WHERE tc.CONSTRAINT_TYPE = 'Primary Key'";
+//        ArrayList<Table> t = new ArrayList<Table>(t.values());
+
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection conn = DriverManager.getConnection(SQLServerConnectionString);
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            while (rs.next()) {
+                if(!tables.containsKey(rs.getString("TABLE_NAME"))){
+                    //There is something wrong!
+                }
+                else{
+                    tables.get(rs.getString("TABLE_NAME")).Keys.add(rs.getString("COLUMN_NAME"));
+                }
+            }
+
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
         return tables;
     }
 
@@ -174,6 +170,10 @@ public class Converter {
                 Vals = new HashMap<String, String>();
             }
 
+            //Add Index:
+            //./schema/index/person
+            AddIndex(table);
+
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -183,47 +183,86 @@ public class Converter {
         System.out.println("Finished converting: " + table.TableName);
     }
 
-    public void AddNode(Map<String, String> Vals, ArrayList<Attribute> Attr, String TableName) {
-        URI node = createNode();
-        for(Attribute property : Attr){
-            addProperty(node, property.Name, Vals.get(property.Name));
-        }
-    }
-
     public void AddRelationship(Map<String, String> Vals, ArrayList<String> Attr,
                                 String TableName, URI node1, URI node2){
 
     }
 
-    private URI createNode(){
+    public void AddNode(Map<String, String> Vals, ArrayList<Attribute> Attr, String TableName) {
         final String nodeEntryPointUri = Neo4jConnectionString + "node";
+
+        WebResource resource = Client.create()
+                .resource( nodeEntryPointUri );
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ ");
+//        sb.append( "{ \"labels\" : \"" );
+//        sb.append( TableName.replace(' ', '_') );
+//        sb.append( "\", " );
+//
+//        sb.append( "\"data\" : { " );
+
+        for(int i = 0; i < Attr.size(); i++){
+            Attribute property = Attr.get(i);
+            sb.append("\"" + property.Name + "\" : \"" + Vals.get(property.Name) + "\"");
+            if(i + 1 < Attr.size()) sb.append( ", " );
+        }
+//        sb.append(" }");
+        sb.append(" }");
+
+        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+                .type( MediaType.APPLICATION_JSON )
+                .entity( sb.toString() )
+                .post( ClientResponse.class );
+
+        final URI location = response.getLocation();
+        AddLabel(TableName, location);
+        System.out.println( String.format(
+                "POST to [%s], status code [%d], location header [%s]",
+                nodeEntryPointUri, response.getStatus(), location.toString() ) );
+        response.close();
+    }
+
+    private void AddIndex(Table table){
+        final String nodeEntryPointUri = Neo4jConnectionString + "schema/index/" + table.TableName.replace(' ', '_');
+
+        WebResource resource = Client.create()
+                .resource( nodeEntryPointUri );
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ \"property_keys\" : [ ");
+        for(int i = 0; i < table.Keys.size(); i++){
+            String property = table.Keys.get(i);
+            sb.append("\"" + property + "\"" );
+            if(i + 1 < table.Keys.size()) sb.append( ", " );
+        }
+        sb.append(" ] }");
+
+        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+                .type( MediaType.APPLICATION_JSON )
+                .entity( sb.toString() )
+                .post( ClientResponse.class );
+
+        final URI location = response.getLocation();
+        System.out.println( String.format(
+                "POST to [%s], status code [%d]",
+                nodeEntryPointUri, response.getStatus() ) );
+        response.close();
+    }
+
+    private void AddLabel(String TableName, URI node){
+        final String nodeEntryPointUri = node + "/labels";
+        final String name = TableName.replace(' ', '_');
 
         WebResource resource = Client.create()
                 .resource( nodeEntryPointUri );
 
         ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
-                .type( MediaType.APPLICATION_JSON )
-                .entity( "{}" )
-                .post( ClientResponse.class );
+                .type(MediaType.APPLICATION_JSON)
+                .entity("\"" + name + "\"")
+                .post(ClientResponse.class);
 
         final URI location = response.getLocation();
         response.close();
-
-        return location;
-    }
-
-    private void addProperty(URI nodeUri, String propertyName, String propertyValue){
-        String propertyUri = nodeUri.toString() + "/properties/" + propertyName;
-        // http://localhost:7474/db/data/node/{node_id}/properties/{property_name}
-
-        if(propertyValue == null) return;
-
-        WebResource resource = Client.create()
-                .resource( propertyUri );
-        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
-                .type( MediaType.APPLICATION_JSON )
-                .entity( "\"" + propertyValue + "\"" )
-                .put( ClientResponse.class );
     }
 
     private static URI addRelationship( URI startNode, URI endNode,
