@@ -31,6 +31,10 @@ how the conversions are going to be handled.
 
 ![URBEX ERD](./Images/URBEX_ERD.png "URBEX ERD")
 
+Running our combined table info query, we gain these as results:
+
+![URBEX Tabel Info](./Images/TableInfo.png "URBEX Table Info")
+
 ### 0 Foreign Keys -> Node <a id="0ForeignKeys"></a>
 
 If a table has 0 Foreign keys, then a Node will be created.
@@ -39,6 +43,8 @@ it doesn't rely on any other data already existing in the database.
 
 This conversion will make a new node with Properties for each
 Attribute owned by the Tuple.
+
+![Person](./Images/Node.png "Node")
 
 ### 2 Foreign Keys -> Relationship <a id="2ForeignKeys"></a>
 
