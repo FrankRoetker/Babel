@@ -31,7 +31,10 @@ public class Main {
             Table t = (Table) pairs.getValue();
 
             if(t.Type == Table.TableType.base){
-                c.ConvertBaseTable(t);
+                //c.ConvertBaseTable(t);
+            }
+            else if(t.Type == Table.TableType.relationship){
+                c.ConvertRelationshipTable(t);
             }
 
             it.remove(); // avoids a ConcurrentModificationException

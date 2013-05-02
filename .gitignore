@@ -57,6 +57,7 @@ _ReSharper*
 
 # IntelliJ stuff
 .idea/
+out/
 
 # NCrunch
 *.ncrunch*

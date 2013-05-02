@@ -92,7 +92,7 @@ public class Converter {
                 Attribute Attr = new Attribute(rs.getString("COLUMN_NAME"),
                         fk ? Attribute.AttributeType.base : Attribute.AttributeType.foriegnkey);
 
-                if(fk){
+                if(!fk){
                     Attr.SetFKConstraint(rs.getString("FKTABLE_NAME"), rs.getString("FKCOLUMN_NAME"));
                 }
 
@@ -171,7 +171,6 @@ public class Converter {
             }
 
             //Add Index:
-            //./schema/index/person
             AddIndex(table);
 
             conn.close();
@@ -183,8 +182,62 @@ public class Converter {
         System.out.println("Finished converting: " + table.TableName);
     }
 
-    public void AddRelationship(Map<String, String> Vals, ArrayList<String> Attr,
-                                String TableName, URI node1, URI node2){
+    public void ConvertRelationshipTable(Table table){
+        System.out.println("Starting to convert: " + table.TableName);
+        String query = "SELECT *\n" +
+                       "FROM [" + table.TableName + "];";
+        Map<String, String> Vals = new HashMap<String, String>();
+
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection conn = DriverManager.getConnection(SQLServerConnectionString);
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            while (rs.next()) {
+                int i = 0;
+                URI node[] = new URI[2];
+                for(Attribute a : table.Attr){
+                    if(table.Keys.contains(a.Name)) {
+//                        START a=node(...), b=node(...)
+//                        CREATE a-[r:CONNECTED_TO]-b
+//                        SET r.att = val
+                        final String nodeQuery = Neo4jConnectionString
+                                + "label/" + a.fkTable.replace(' ', '_') + "/nodes?"
+                                + a.fkAttribute + "=%22"
+                                + rs.getString(a.Name).replace(' ', '+')
+                                + "%22";
+
+                        WebResource resource = Client.create()
+                                .resource( nodeQuery );
+
+                        ClientResponse response = resource.getRequestBuilder()
+                                .get(ClientResponse.class);
+
+                        node[i++]= response.getLocation();
+                    }
+                    Vals.put(a.Name, rs.getString(a.Name));
+                }
+//                AddNode(Vals, table.Attr, table.TableName);
+                AddRelationship(Vals, table.Attr, table, node[0], node[1]);
+                Vals = new HashMap<String, String>();
+            }
+
+            //Add Index:
+            //AddIndex(table);
+
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        System.out.println("Finished converting: " + table.TableName);
+    }
+
+    public void AddRelationship(Map<String, String> Vals, ArrayList<Attribute> Attr,
+                                Table table, URI node1, URI node2){
+//        label/Person/nodes?name=%22bob+ross%22
 
     }
 
@@ -195,12 +248,6 @@ public class Converter {
                 .resource( nodeEntryPointUri );
         StringBuilder sb = new StringBuilder();
         sb.append("{ ");
-//        sb.append( "{ \"labels\" : \"" );
-//        sb.append( TableName.replace(' ', '_') );
-//        sb.append( "\", " );
-//
-//        sb.append( "\"data\" : { " );
-
         for(int i = 0; i < Attr.size(); i++){
             Attribute property = Attr.get(i);
             sb.append("\"" + property.Name + "\" : \"" + Vals.get(property.Name) + "\"");
@@ -219,6 +266,41 @@ public class Converter {
         System.out.println( String.format(
                 "POST to [%s], status code [%d], location header [%s]",
                 nodeEntryPointUri, response.getStatus(), location.toString() ) );
+        response.close();
+    }
+
+    private void AddRelationship2(Table t, Attribute a1, Attribute a2, String key1, String key2,
+                                  ArrayList<Attribute> Attr, Map<String, String> Vals){
+        final String nodeEntryPointUri = Neo4jConnectionString + "cypher";
+
+        WebResource resource = Client.create()
+                .resource( nodeEntryPointUri );
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ ");
+
+        sb.append("\"query\" : \"");
+//                        START a=node(...), b=node(...)
+//                        CREATE a-[r:CONNECTED_TO]-b
+//                        SET r.att = val
+        sb.append("START a=node:" + a1.fkTable.replace(' ', '_') + "(");
+//        sb.append(a1.fkAttribute + "=" + );
+
+        sb.append( "\"params\" : { " );
+
+        for(int i = 0; i < Attr.size(); i++){
+            Attribute property = Attr.get(i);
+            sb.append("\"" + property.Name + "\" : \"" + Vals.get(property.Name) + "\"");
+            if(i + 1 < Attr.size()) sb.append( ", " );
+        }
+        sb.append(" }");
+        sb.append(" }");
+
+        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+                .type( MediaType.APPLICATION_JSON )
+                .entity( sb.toString() )
+                .post( ClientResponse.class );
+
+        final URI location = response.getLocation();
         response.close();
     }
 
