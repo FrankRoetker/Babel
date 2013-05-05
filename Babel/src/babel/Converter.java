@@ -3,10 +3,10 @@ package babel;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import org.json.JSONObject;
 
 import javax.ws.rs.core.MediaType;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +33,11 @@ public class Converter {
         if (_converter == null)
             _converter = new Converter();
         return _converter;
+    }
+
+    private static String toJsonNameValuePairCollection(String name,
+                                                        String value) {
+        return String.format("{ \"%s\" : \"%s\" }", name, value);
     }
 
     public void SetSQLServerConnectionString(String sqlServerConnectionString) {
@@ -92,16 +97,15 @@ public class Converter {
                 Attribute Attr = new Attribute(rs.getString("COLUMN_NAME"),
                         fk ? Attribute.AttributeType.base : Attribute.AttributeType.foriegnkey);
 
-                if(!fk){
+                if (!fk) {
                     Attr.SetFKConstraint(rs.getString("FKTABLE_NAME"), rs.getString("FKCOLUMN_NAME"));
                 }
 
-                if(!tables.containsKey(rs.getString("TABLE_NAME"))){
+                if (!tables.containsKey(rs.getString("TABLE_NAME"))) {
                     Table newTable = new Table(rs.getString("TABLE_NAME"));
                     newTable.AddAttribute(Attr);
                     tables.put(rs.getString("TABLE_NAME"), newTable);
-                }
-                else{
+                } else {
                     Table table = tables.get(rs.getString("TABLE_NAME"));
                     table.AddAttribute(Attr);
                 }
@@ -119,11 +123,10 @@ public class Converter {
 
     public Map<String, Table> GrabSQLServerIndexes(Map<String, Table> tables) {
         String query = "SELECT tc.TABLE_NAME, COLUMN_NAME\n" +
-                       "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc\n" +
-                       "JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu \n" +
-                       "ON tc.CONSTRAINT_NAME = ccu.Constraint_name\n" +
-                       "WHERE tc.CONSTRAINT_TYPE = 'Primary Key'";
-//        ArrayList<Table> t = new ArrayList<Table>(t.values());
+                "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc\n" +
+                "JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu \n" +
+                "ON tc.CONSTRAINT_NAME = ccu.Constraint_name\n" +
+                "WHERE tc.CONSTRAINT_TYPE = 'Primary Key'";
 
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -132,10 +135,9 @@ public class Converter {
             ResultSet rs = statement.executeQuery(query);
 
             while (rs.next()) {
-                if(!tables.containsKey(rs.getString("TABLE_NAME"))){
+                if (!tables.containsKey(rs.getString("TABLE_NAME"))) {
                     //There is something wrong!
-                }
-                else{
+                } else {
                     tables.get(rs.getString("TABLE_NAME")).Keys.add(rs.getString("COLUMN_NAME"));
                 }
             }
@@ -150,10 +152,10 @@ public class Converter {
         return tables;
     }
 
-    public void ConvertBaseTable(Table table){
+    public void ConvertBaseTable(Table table) {
         System.out.println("Starting to convert: " + table.TableName);
         String query = "SELECT *\n" +
-                       "FROM [" + table.TableName + "];";
+                "FROM [" + table.TableName + "];";
         Map<String, String> Vals = new HashMap<String, String>();
 
         try {
@@ -163,7 +165,7 @@ public class Converter {
             ResultSet rs = statement.executeQuery(query);
 
             while (rs.next()) {
-                for(Attribute a : table.Attr){
+                for (Attribute a : table.Attr) {
                     Vals.put(a.Name, rs.getString(a.Name));
                 }
                 AddNode(Vals, table.Attr, table.TableName);
@@ -182,10 +184,10 @@ public class Converter {
         System.out.println("Finished converting: " + table.TableName);
     }
 
-    public void ConvertRelationshipTable(Table table){
+    public void ConvertRelationshipTable(Table table) {
         System.out.println("Starting to convert: " + table.TableName);
         String query = "SELECT *\n" +
-                       "FROM [" + table.TableName + "];";
+                "FROM [" + table.TableName + "];";
         Map<String, String> Vals = new HashMap<String, String>();
 
         try {
@@ -197,11 +199,8 @@ public class Converter {
             while (rs.next()) {
                 int i = 0;
                 URI node[] = new URI[2];
-                for(Attribute a : table.Attr){
-                    if(table.Keys.contains(a.Name)) {
-//                        START a=node(...), b=node(...)
-//                        CREATE a-[r:CONNECTED_TO]-b
-//                        SET r.att = val
+                for (Attribute a : table.Attr) {
+                    if (table.Keys.contains(a.Name)) {
                         final String nodeQuery = Neo4jConnectionString
                                 + "label/" + a.fkTable.replace(' ', '_') + "/nodes?"
                                 + a.fkAttribute + "=%22"
@@ -209,21 +208,27 @@ public class Converter {
                                 + "%22";
 
                         WebResource resource = Client.create()
-                                .resource( nodeQuery );
+                                .resource(nodeQuery);
 
-                        ClientResponse response = resource.getRequestBuilder()
+                        ClientResponse response = resource.accept(MediaType.APPLICATION_JSON)
                                 .get(ClientResponse.class);
 
-                        node[i++]= response.getLocation();
+                        String entity = response.getEntity(String.class);
+                        entity = entity.substring(1);
+                        entity = entity.substring(0, entity.length() - 2);
+
+                        JSONObject jsonData = new JSONObject(entity);
+                        String value = (String) jsonData.get("self");
+
+                        node[i++] = URI.create(value);
                     }
                     Vals.put(a.Name, rs.getString(a.Name));
                 }
-//                AddNode(Vals, table.Attr, table.TableName);
                 AddRelationship(Vals, table.Attr, table, node[0], node[1]);
                 Vals = new HashMap<String, String>();
             }
 
-            //Add Index:
+            //We might want to add an index:
             //AddIndex(table);
 
             conn.close();
@@ -236,194 +241,134 @@ public class Converter {
     }
 
     public void AddRelationship(Map<String, String> Vals, ArrayList<Attribute> Attr,
-                                Table table, URI node1, URI node2){
-//        label/Person/nodes?name=%22bob+ross%22
+                                Table table, URI node1, URI node2) {
+        final String nodeEntryPointUri = Neo4jConnectionString + "cypher";
 
+        String[] n1 = node1.toString().split("/");
+        String[] n2 = node2.toString().split("/");
+        String tname = table.TableName.replace(' ', '_');
+
+        WebResource resource = Client.create()
+                .resource(nodeEntryPointUri);
+        StringBuilder sb = new StringBuilder();
+        sb.append("{ ");
+
+        sb.append("\"query\" : \"");
+
+//      START a=node(...), b=node(...)
+//      CREATE a-[r:CONNECTED_TO]-b
+//      SET r.att = val
+//      RETURN r
+
+        sb.append("START a=node(");
+
+        sb.append(n1[n1.length - 1]);
+        sb.append("), b=node(");
+        sb.append(n2[n2.length - 1]);
+        sb.append(") CREATE a-[r:");
+        sb.append(tname);
+        sb.append("]-b SET ");
+
+        for (int i = 0; i < Attr.size(); i++) {
+            Attribute property = Attr.get(i);
+            sb.append("r." + property.Name + "={" + property.Name + "}");
+            if (i + 1 < Attr.size()) sb.append(", ");
+        }
+
+        sb.append(" RETURN r");
+
+        sb.append("\", \"params\" : { ");
+
+        for (int i = 0; i < Attr.size(); i++) {
+            Attribute property = Attr.get(i);
+            sb.append("\"" + property.Name + "\" : \"" + Vals.get(property.Name) + "\"");
+            if (i + 1 < Attr.size()) sb.append(", ");
+        }
+
+        sb.append(" }");
+        sb.append(" }");
+
+        ClientResponse response = resource.accept(MediaType.APPLICATION_JSON)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(sb.toString())
+                .post(ClientResponse.class);
+
+        //We might want to add a Label to the relationship:
+        //AddLabel(, location);
+        System.out.println(String.format(
+                "POST to [%s], status code [%d], Relationship from [%s] to [%s]",
+                nodeEntryPointUri, response.getStatus(), "node(" + n1[n1.length - 1] + ")", "node(" + n2[n2.length - 1] + ")"));
+
+        response.close();
     }
 
     public void AddNode(Map<String, String> Vals, ArrayList<Attribute> Attr, String TableName) {
         final String nodeEntryPointUri = Neo4jConnectionString + "node";
 
         WebResource resource = Client.create()
-                .resource( nodeEntryPointUri );
+                .resource(nodeEntryPointUri);
         StringBuilder sb = new StringBuilder();
         sb.append("{ ");
-        for(int i = 0; i < Attr.size(); i++){
+        for (int i = 0; i < Attr.size(); i++) {
             Attribute property = Attr.get(i);
             sb.append("\"" + property.Name + "\" : \"" + Vals.get(property.Name) + "\"");
-            if(i + 1 < Attr.size()) sb.append( ", " );
+            if (i + 1 < Attr.size()) sb.append(", ");
         }
-//        sb.append(" }");
         sb.append(" }");
 
-        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
-                .type( MediaType.APPLICATION_JSON )
-                .entity( sb.toString() )
-                .post( ClientResponse.class );
+        ClientResponse response = resource.accept(MediaType.APPLICATION_JSON)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(sb.toString())
+                .post(ClientResponse.class);
 
         final URI location = response.getLocation();
         AddLabel(TableName, location);
-        System.out.println( String.format(
+        System.out.println(String.format(
                 "POST to [%s], status code [%d], location header [%s]",
-                nodeEntryPointUri, response.getStatus(), location.toString() ) );
+                nodeEntryPointUri, response.getStatus(), location.toString()));
         response.close();
     }
 
-    private void AddRelationship2(Table t, Attribute a1, Attribute a2, String key1, String key2,
-                                  ArrayList<Attribute> Attr, Map<String, String> Vals){
-        final String nodeEntryPointUri = Neo4jConnectionString + "cypher";
-
-        WebResource resource = Client.create()
-                .resource( nodeEntryPointUri );
-        StringBuilder sb = new StringBuilder();
-        sb.append("{ ");
-
-        sb.append("\"query\" : \"");
-//                        START a=node(...), b=node(...)
-//                        CREATE a-[r:CONNECTED_TO]-b
-//                        SET r.att = val
-        sb.append("START a=node:" + a1.fkTable.replace(' ', '_') + "(");
-//        sb.append(a1.fkAttribute + "=" + );
-
-        sb.append( "\"params\" : { " );
-
-        for(int i = 0; i < Attr.size(); i++){
-            Attribute property = Attr.get(i);
-            sb.append("\"" + property.Name + "\" : \"" + Vals.get(property.Name) + "\"");
-            if(i + 1 < Attr.size()) sb.append( ", " );
-        }
-        sb.append(" }");
-        sb.append(" }");
-
-        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
-                .type( MediaType.APPLICATION_JSON )
-                .entity( sb.toString() )
-                .post( ClientResponse.class );
-
-        final URI location = response.getLocation();
-        response.close();
-    }
-
-    private void AddIndex(Table table){
+    private void AddIndex(Table table) {
         final String nodeEntryPointUri = Neo4jConnectionString + "schema/index/" + table.TableName.replace(' ', '_');
 
         WebResource resource = Client.create()
-                .resource( nodeEntryPointUri );
+                .resource(nodeEntryPointUri);
 
         StringBuilder sb = new StringBuilder();
         sb.append("{ \"property_keys\" : [ ");
-        for(int i = 0; i < table.Keys.size(); i++){
+        for (int i = 0; i < table.Keys.size(); i++) {
             String property = table.Keys.get(i);
-            sb.append("\"" + property + "\"" );
-            if(i + 1 < table.Keys.size()) sb.append( ", " );
+            sb.append("\"" + property + "\"");
+            if (i + 1 < table.Keys.size()) sb.append(", ");
         }
         sb.append(" ] }");
 
-        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
-                .type( MediaType.APPLICATION_JSON )
-                .entity( sb.toString() )
-                .post( ClientResponse.class );
+        ClientResponse response = resource.accept(MediaType.APPLICATION_JSON)
+                .type(MediaType.APPLICATION_JSON)
+                .entity(sb.toString())
+                .post(ClientResponse.class);
 
         final URI location = response.getLocation();
-        System.out.println( String.format(
+        System.out.println(String.format(
                 "POST to [%s], status code [%d]",
-                nodeEntryPointUri, response.getStatus() ) );
+                nodeEntryPointUri, response.getStatus()));
         response.close();
     }
 
-    private void AddLabel(String TableName, URI node){
+    private void AddLabel(String TableName, URI node) {
         final String nodeEntryPointUri = node + "/labels";
         final String name = TableName.replace(' ', '_');
 
         WebResource resource = Client.create()
-                .resource( nodeEntryPointUri );
+                .resource(nodeEntryPointUri);
 
-        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
+        ClientResponse response = resource.accept(MediaType.APPLICATION_JSON)
                 .type(MediaType.APPLICATION_JSON)
                 .entity("\"" + name + "\"")
                 .post(ClientResponse.class);
 
         final URI location = response.getLocation();
         response.close();
-    }
-
-    private static URI addRelationship( URI startNode, URI endNode,
-                                        String relationshipType, String jsonAttributes )
-            throws URISyntaxException
-    {
-        URI fromUri = new URI( startNode.toString() + "/relationships" );
-        String relationshipJson = generateJsonRelationship( endNode,
-                relationshipType, jsonAttributes );
-
-        WebResource resource = Client.create()
-                .resource( fromUri );
-        // POST JSON to the relationships URI
-        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
-                .type( MediaType.APPLICATION_JSON )
-                .entity( relationshipJson )
-                .post( ClientResponse.class );
-
-        final URI location = response.getLocation();
-        System.out.println( String.format(
-                "POST to [%s], status code [%d], location header [%s]",
-                fromUri, response.getStatus(), location.toString() ) );
-
-        response.close();
-        return location;
-    }
-
-    private static String generateJsonRelationship( URI endNode,
-                                                    String relationshipType, String... jsonAttributes )
-    {
-        StringBuilder sb = new StringBuilder();
-        sb.append( "{ \"to\" : \"" );
-        sb.append( endNode.toString() );
-        sb.append( "\", " );
-
-        sb.append( "\"type\" : \"" );
-        sb.append( relationshipType );
-        if ( jsonAttributes == null || jsonAttributes.length < 1 )
-        {
-            sb.append( "\"" );
-        }
-        else
-        {
-            sb.append( "\", \"data\" : " );
-            for ( int i = 0; i < jsonAttributes.length; i++ )
-            {
-                sb.append( jsonAttributes[i] );
-                if ( i < jsonAttributes.length - 1 )
-                { // Miss off the final comma
-                    sb.append( ", " );
-                }
-            }
-        }
-
-        sb.append( " }" );
-        return sb.toString();
-    }
-
-    private static void addMetadataToProperty( URI relationshipUri,
-                                               String name, String value ) throws URISyntaxException
-    {
-        URI propertyUri = new URI( relationshipUri.toString() + "/properties" );
-        String entity = toJsonNameValuePairCollection( name, value );
-        WebResource resource = Client.create()
-                .resource( propertyUri );
-        ClientResponse response = resource.accept( MediaType.APPLICATION_JSON )
-                .type( MediaType.APPLICATION_JSON )
-                .entity( entity )
-                .put( ClientResponse.class );
-
-        System.out.println( String.format(
-                "PUT [%s] to [%s], status code [%d]", entity, propertyUri,
-                response.getStatus() ) );
-        response.close();
-    }
-
-    private static String toJsonNameValuePairCollection( String name,
-                                                         String value )
-    {
-        return String.format( "{ \"%s\" : \"%s\" }", name, value );
     }
 }
