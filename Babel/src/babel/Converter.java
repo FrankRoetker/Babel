@@ -184,6 +184,63 @@ public class Converter {
         System.out.println("Finished converting: " + table.TableName);
     }
 
+    public void ConvertArrowTable(Table table){
+        System.out.println("Starting to convert: " + table.TableName);
+        String query = "SELECT *\n" +
+                "FROM [" + table.TableName + "];";
+        Map<String, String> Vals = new HashMap<String, String>();
+
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection conn = DriverManager.getConnection(SQLServerConnectionString);
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            while (rs.next()) {
+                URI node = null;
+                for (Attribute a : table.Attr) {
+                    if (table.Keys.contains(a.Name)) {
+                        final String nodeQuery = Neo4jConnectionString
+                                + "label/" + a.fkTable.replace(' ', '_') + "/nodes?"
+                                + a.fkAttribute + "=%22"
+                                + rs.getString(a.Name).replace(' ', '+')
+                                + "%22";
+
+                        WebResource resource = Client.create()
+                                .resource(nodeQuery);
+
+                        ClientResponse response = resource.accept(MediaType.APPLICATION_JSON)
+                                .get(ClientResponse.class);
+
+                        String entity = response.getEntity(String.class);
+                        entity = entity.substring(1);
+                        entity = entity.substring(0, entity.length() - 2);
+
+                        JSONObject jsonData = new JSONObject(entity);
+                        String value = (String) jsonData.get("self");
+
+                        node = URI.create(value);
+                    }
+                    Vals.put(a.Name, rs.getString(a.Name));
+                }
+                URI newNode = AddNode(Vals, table.Attr, table.TableName);
+
+                if(node == null) throw new NullPointerException("reference node was not found");
+
+                AddRelationship(Vals, table.Attr, table, newNode, node);
+                Vals = new HashMap<String, String>();
+            }
+            AddIndex(table);
+
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        System.out.println("Finished converting: " + table.TableName);
+    }
+
     public void ConvertRelationshipTable(Table table) {
         System.out.println("Starting to convert: " + table.TableName);
         String query = "SELECT *\n" +
@@ -230,6 +287,65 @@ public class Converter {
 
             //We might want to add an index:
             //AddIndex(table);
+
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        System.out.println("Finished converting: " + table.TableName);
+    }
+
+    public void ConvertSpiderTable(Table table){
+        System.out.println("Starting to convert: " + table.TableName);
+        String query = "SELECT *\n" +
+                "FROM [" + table.TableName + "];";
+        Map<String, String> Vals = new HashMap<String, String>();
+
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection conn = DriverManager.getConnection(SQLServerConnectionString);
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            while (rs.next()) {
+                ArrayList<URI> nodes = new ArrayList<URI>();
+                for (Attribute a : table.Attr) {
+                    if (table.Keys.contains(a.Name)) {
+                        final String nodeQuery = Neo4jConnectionString
+                                + "label/" + a.fkTable.replace(' ', '_') + "/nodes?"
+                                + a.fkAttribute + "=%22"
+                                + rs.getString(a.Name).replace(' ', '+')
+                                + "%22";
+
+                        WebResource resource = Client.create()
+                                .resource(nodeQuery);
+
+                        ClientResponse response = resource.accept(MediaType.APPLICATION_JSON)
+                                .get(ClientResponse.class);
+
+                        String entity = response.getEntity(String.class);
+                        entity = entity.substring(1);
+                        entity = entity.substring(0, entity.length() - 2);
+
+                        JSONObject jsonData = new JSONObject(entity);
+                        String value = (String) jsonData.get("self");
+
+                        nodes.add(URI.create(value));
+                    }
+                    Vals.put(a.Name, rs.getString(a.Name));
+                }
+                URI newNode = AddNode(Vals, table.Attr, table.TableName);
+
+                for(URI node : nodes){
+                    AddRelationship(Vals, table.Attr, table, newNode, node);
+                }
+                Vals = new HashMap<String, String>();
+            }
+
+            //We might want to add an index:
+            AddIndex(table);
 
             conn.close();
         } catch (SQLException e) {
@@ -302,7 +418,7 @@ public class Converter {
         response.close();
     }
 
-    public void AddNode(Map<String, String> Vals, ArrayList<Attribute> Attr, String TableName) {
+    public URI AddNode(Map<String, String> Vals, ArrayList<Attribute> Attr, String TableName) {
         final String nodeEntryPointUri = Neo4jConnectionString + "node";
 
         WebResource resource = Client.create()
@@ -327,6 +443,8 @@ public class Converter {
                 "POST to [%s], status code [%d], location header [%s]",
                 nodeEntryPointUri, response.getStatus(), location.toString()));
         response.close();
+
+        return location;
     }
 
     private void AddIndex(Table table) {

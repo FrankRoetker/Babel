@@ -39,11 +39,35 @@ public class Main {
             Map.Entry pairs = (Map.Entry) it.next();
             Table t = (Table) pairs.getValue();
 
+            if (t.Type == Table.TableType.arrow) {
+                c.ConvertArrowTable(t);
+                it.remove();
+            }
+        }
+
+        it = tables.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+            Table t = (Table) pairs.getValue();
+
             if (t.Type == Table.TableType.relationship) {
                 c.ConvertRelationshipTable(t);
                 it.remove();
             }
         }
+
+        it = tables.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+            Table t = (Table) pairs.getValue();
+
+            if (t.Type == Table.TableType.spider) {
+                c.ConvertSpiderTable(t);
+                it.remove();
+            }
+        }
+
+        System.out.println("Finished converting the database!");
     }
 
     //For Testing Purposes, Purging a Neo4j Database is done like this:

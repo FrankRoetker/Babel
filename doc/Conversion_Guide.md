@@ -1,4 +1,4 @@
-Tables -> Nodes and Relationships
+Tables &#8680; Nodes and Relationships
 =================================
 
 In the Relational database world, data is organized in Tables (or 

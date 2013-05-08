@@ -1,4 +1,4 @@
-# SQL Server -> Neo4j
+# SQL Server &#8680; Neo4j
 
 
 
