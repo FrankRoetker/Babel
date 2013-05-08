@@ -184,6 +184,70 @@ public class Converter {
         System.out.println("Finished converting: " + table.TableName);
     }
 
+    //Unfortunately I don't know how to add labels in batch node insertion, so don't use this:
+    public void ConvertBaseTableBatch(Table table) {
+        System.out.println("Starting to convert: " + table.TableName);
+        String query = "SELECT *\n" +
+                "FROM [" + table.TableName + "];";
+        Map<String, String> Vals = new HashMap<String, String>();
+
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            Connection conn = DriverManager.getConnection(SQLServerConnectionString);
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            final String nodeEntryPointUri = Neo4jConnectionString + "batch";
+
+            WebResource resource = Client.create()
+                    .resource(nodeEntryPointUri);
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("[");
+
+            while (rs.next()) {
+                for (Attribute a : table.Attr) {
+                    Vals.put(a.Name, rs.getString(a.Name));
+                }
+                //AddNode(Vals, table.Attr, table.TableName);
+
+                sb.append(" { \"method\" : \"POST\", \"to\" : \"/node\", \"body\" : \n{ ");
+
+                for (int i = 0; i < table.Attr.size(); i++){
+                    sb.append("\"" + table.Attr.get(i).Name + "\" : \"" + Vals.get(table.Attr.get(i).Name) + "\"");
+                    if(i+1 < table.Attr.size()) sb.append(", ");
+                }
+
+                sb.append("}, \"label\" : \"" + table.TableName.replace(' ', '_') + "\"");
+
+                sb.append("},\n");
+
+                Vals = new HashMap<String, String>();
+            }
+
+            sb.deleteCharAt(sb.lastIndexOf(","));
+            sb.append(" ]");
+
+            ClientResponse response = resource.accept(MediaType.APPLICATION_JSON)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(sb.toString())
+                    .post(ClientResponse.class);
+
+            response.close();
+
+            //Add Index:
+            AddIndex(table);
+
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        System.out.println("Finished converting: " + table.TableName);
+    }
+
     public void ConvertArrowTable(Table table){
         System.out.println("Starting to convert: " + table.TableName);
         String query = "SELECT *\n" +
