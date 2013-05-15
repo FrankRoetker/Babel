@@ -291,7 +291,7 @@ public class Converter {
 
                 if(node == null) throw new NullPointerException("reference node was not found");
 
-                AddRelationship(Vals, table.Attr, table, newNode, node);
+                AddRelationship(Vals, table.Attr, table, node, newNode);
                 Vals = new HashMap<String, String>();
             }
             AddIndex(table);
@@ -345,7 +345,7 @@ public class Converter {
                     }
                     Vals.put(a.Name, rs.getString(a.Name));
                 }
-                AddRelationship(Vals, table.Attr, table, node[0], node[1]);
+                AddRelationship(Vals, table.Attr, table, node[1], node[0]);
                 Vals = new HashMap<String, String>();
             }
 
@@ -403,7 +403,7 @@ public class Converter {
                 URI newNode = AddNode(Vals, table.Attr, table.TableName);
 
                 for(URI node : nodes){
-                    AddRelationship(Vals, table.Attr, table, newNode, node);
+                    AddRelationship(Vals, table.Attr, table, node, newNode);
                 }
                 Vals = new HashMap<String, String>();
             }
