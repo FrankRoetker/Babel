@@ -24,11 +24,18 @@ public class Converter {
     private String SQLServerConnectionString;
     private String Neo4jConnectionString;
 
+    /**
+     * Singleton constructor
+     */
     private Converter() {
         SQLServerConnectionString = "";
         Neo4jConnectionString = "";
     }
 
+    /**
+     * Singleton Accessor
+     * @return the instance of this class
+     */
     public static Converter GetInstance() {
         if (_converter == null)
             _converter = new Converter();
@@ -40,14 +47,26 @@ public class Converter {
         return String.format("{ \"%s\" : \"%s\" }", name, value);
     }
 
+    /**
+     * Configures Babel for connecting to the SQL Server.
+     * @param sqlServerConnectionString SQL Server connection string
+     */
     public void SetSQLServerConnectionString(String sqlServerConnectionString) {
         SQLServerConnectionString = sqlServerConnectionString;
     }
 
+    /**
+     * Configures Babel for connecting to the Neo4j Server.
+     * @param neo4jConnectionString Neo4j connection string
+     */
     public void SetNeo4jConnectionString(String neo4jConnectionString) {
         Neo4jConnectionString = neo4jConnectionString;
     }
 
+    /**
+     * Grabs the table info needed to properly convert the MS SQL database.
+     * @return map of table info
+     */
     public Map<String, Table> GrabSQLServerTableInfo() {
         String query = "SELECT INFO.TABLE_NAME, INFO.COLUMN_NAME, \n" +
                 "       FK.FKTABLE_NAME, FK.FKCOLUMN_NAME \n" +
@@ -121,6 +140,11 @@ public class Converter {
         return GrabSQLServerIndexes(tables);
     }
 
+    /**
+     * Grabs the indexes for the tables.
+     * @param tables map of table info
+     * @return map of altered table info with indexes
+     */
     public Map<String, Table> GrabSQLServerIndexes(Map<String, Table> tables) {
         String query = "SELECT tc.TABLE_NAME, COLUMN_NAME\n" +
                 "FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc\n" +
@@ -152,6 +176,10 @@ public class Converter {
         return tables;
     }
 
+    /**
+     * Inserts the data for a given base table into the Neo4j database.
+     * @param table table to insert
+     */
     public void ConvertBaseTable(Table table) {
         System.out.println("Starting to convert: " + table.TableName);
         String query = "SELECT *\n" +
@@ -248,6 +276,10 @@ public class Converter {
         System.out.println("Finished converting: " + table.TableName);
     }
 
+    /**
+     * Inserts the data for a given arrow table into the Neo4j database.
+     * @param table table to insert
+     */
     public void ConvertArrowTable(Table table){
         System.out.println("Starting to convert: " + table.TableName);
         String query = "SELECT *\n" +
@@ -305,6 +337,10 @@ public class Converter {
         System.out.println("Finished converting: " + table.TableName);
     }
 
+    /**
+     * Inserts the data for a given relationship table into the Neo4j database.
+     * @param table table to insert
+     */
     public void ConvertRelationshipTable(Table table) {
         System.out.println("Starting to convert: " + table.TableName);
         String query = "SELECT *\n" +
@@ -361,6 +397,10 @@ public class Converter {
         System.out.println("Finished converting: " + table.TableName);
     }
 
+    /**
+     * Inserts the data for a given spider table into the Neo4j database.
+     * @param table table to insert
+     */
     public void ConvertSpiderTable(Table table){
         System.out.println("Starting to convert: " + table.TableName);
         String query = "SELECT *\n" +
@@ -420,6 +460,14 @@ public class Converter {
         System.out.println("Finished converting: " + table.TableName);
     }
 
+    /**
+     * Adds a relationship to the Neo4j database.
+     * @param Vals values for the properties
+     * @param Attr table attributes
+     * @param table table for inserting
+     * @param node1 address of node1
+     * @param node2 address of node2
+     */
     public void AddRelationship(Map<String, String> Vals, ArrayList<Attribute> Attr,
                                 Table table, URI node1, URI node2) {
         final String nodeEntryPointUri = Neo4jConnectionString + "cypher";
@@ -482,6 +530,13 @@ public class Converter {
         response.close();
     }
 
+    /**
+     * Adds a node to the Neo4j database.
+     * @param Vals values for the properties
+     * @param Attr table attributes
+     * @param TableName table for inserting
+     * @return the address of the new node
+     */
     public URI AddNode(Map<String, String> Vals, ArrayList<Attribute> Attr, String TableName) {
         final String nodeEntryPointUri = Neo4jConnectionString + "node";
 
@@ -511,6 +566,10 @@ public class Converter {
         return location;
     }
 
+    /**
+     * Adds an index on the specific table in the Neo4j database.
+     * @param table table on which to create the index
+     */
     private void AddIndex(Table table) {
         final String nodeEntryPointUri = Neo4jConnectionString + "schema/index/" + table.TableName.replace(' ', '_');
 
@@ -538,6 +597,11 @@ public class Converter {
         response.close();
     }
 
+    /**
+     * Adds a label to the given node.
+     * @param TableName table type of the node
+     * @param node node address
+     */
     private void AddLabel(String TableName, URI node) {
         final String nodeEntryPointUri = node + "/labels";
         final String name = TableName.replace(' ', '_');
