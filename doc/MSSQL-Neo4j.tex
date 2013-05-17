@@ -1,9 +1,15 @@
 \documentclass{acm_proc_article-sp}
 
 \usepackage{listings}
+\usepackage{float}
+
+\floatstyle{plain}
+\newfloat{program}{thp}{lop}
+\floatname{program}{Query}
 
 \begin{document}
 \lstset{language=SQL}
+
 
 \title{Inner Workings Behind Babel
 }
@@ -68,6 +74,7 @@ In a relational database, foreign key tables are commonly used to join
 multiple tables together. This is the equivalent to relationships in
 our graph database. So our query needs to include foreign keys, their tables, and the tables/columns that they are constrained to:
 
+\begin{program}
 \begin{lstlisting}[frame=single,breaklines=true]
 SELECT INFO.TABLE_NAME, INFO.COLUMN_NAME, 
        FK.FKTABLE_NAME, FK.FKCOLUMN_NAME 
@@ -104,6 +111,8 @@ ON FK.TABLE_NAME = INFO.TABLE_NAME
    AND FK.COLUMN_NAME = INFO.COLUMN_NAME
 ORDER BY INFO.TABLE_NAME, INFO.COLUMN_NAME
 \end{lstlisting}
+\caption{SQL Table Data}
+\end{program}
 
 This consolidation of data is what we are going to need to consider when
 designing the algorithm for distinguishing potential nodes from relationships.
@@ -118,15 +127,11 @@ In the Relational database world, data is organized in Tables (or Relations). Th
 
 Graph databases on the other hand join data in a much more organic way. The idea of Tuples is thrown out for Nodes. These nodes have Properties; properties are similar to columns. As for the graph relative to Foreign keys, we have Relationships. However, Relationships are much more than just a Foreign key: they physically connect Nodes to each other. Like Nodes, Relationships also can also have properties.
 
-In this guide, I will be using an Urban Exploration database as an example. You don't need to have an understanding of what the database will represent or what the data means to understand how the conversions are going to be handled.
-
 \begin{figure*}
   \centering
   \includegraphics[width=0.75\textwidth]{Images/URBEX_ERD}
   \caption{Urban Exploration Entity Relationship Diagram}
 \end{figure*}
-
-After running our SQL query on the database, we will be presented with the results that are in Figure 2. After viewing these results, it may become more clear how the data is going to be divided up. 
 
 \subsubsection{0 Foreign Keys}
 
@@ -134,20 +139,32 @@ In the event that the table in question has 0 foreign keys, we would consider it
 
 We treat tuples from this type of table as a Node in regards to Neo4j. This is the simplest conversion between MS SQL and Neo4j, because it doesn't rely on any other data already existing in the database. This conversion will make a new node with Properties for each Attribute owned by the Tuple.
 
-\subsubsection{2 Foreign Key}
+\subsubsection{2 Foreign Keys}
 
+The next table conversion to understand is the conversion for the 2 foreign key tables. These tables are usually called ``Foreign Key Tables'' because they are usually devoted to easily joining two tables.
 
+Since we have defined basic tables as Nodes in Neo4j, we could say that these foreign key tables are joining these two tables. In the graph database world, this joining of tables is a Relationship. This conversion will make a new relationship between two nodes and give this relationship Properties for each Attribute owned by the Tuple in the given foreign key table.
 
 \subsubsection{1 Foreign Key}
 
+Now we are getting into the more diverse types of conversions that Babel performs. \footnote{There are multiple approaches to converting tables that are neither of the two previously explained tables, and it is not the goal of this paper to convince you that Babel's approach is the best.} These conversions are a mixture of the two previous forms and are actually quite simple when taking a closer look at the data.
 
+Tables that have 1 foreign key don't fit the mold of either of the two previously described conversions. They can't simply be a Node because there is obviously a piece of their data that is connected to some other tuple, but they also can't simply be a Relationship because they don't connect two tables. 
 
-\subsubsection{3 Or More Foreign Key}
+However, we can take those two principles and merge them together. The simple data that describes them as a Node does exactly that. Then the foreign key will be used as a Relationship between this node created and some other node that the data is referring to.
 
+\subsubsection{3 Or More Foreign Keys}
 
+Things brings us to how we handle tables that have 3 or more foreign keys. Well Babel handles these tables are the same way that it handles tables with 1 foreign key: it creates a Node with many Relationships\footnote{It creates as many Relationships as there are foreign keys.}.
 
-\begin{figure}[h!]
-  \caption{Table Info from SQLQuery1}
+\subsection{Conversion Example}
+
+In this guide, I will be using an Urban Exploration database as an example. You don't need to have an understanding of what the database will represent or what the data means to understand how the conversions are going to be handled. Please refer to Figure 1 for the Entity Relationship Diagram for the database in this example.
+
+After running our SQL query on the database, we will be presented with the results that are in Figure 2. After viewing these results, it may become more clear how the data is going to be divided up. 
+
+\begin{figure}
+  \caption{Table Info from Query 1}
   \centering
     \includegraphics[width=0.45\textwidth]{Images/TableInfo}
 \end{figure}
