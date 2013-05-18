@@ -60,11 +60,13 @@ Babel seeks to alleviate the problem of a company being locked-in to using a RDB
 
 In the world of database management systems, relational databases are dominate. This isn't too surprising since a relational database can be used to solve many problems. However, using a relational database as a solution is not always the most efficient answer.
 
-NoSQL has gained a footing in the database domain, solving problems in a different light than Relational databases. Neo4j, a NoSQL graph database takes a much different stance when viewing the world. ``Reality is a graph''\cite{neo4j:neo4j} is the mantra that Neo Technology takes when looking at data. This may be a greater fit for solving problems that involve deeply connected data which in a RDBMS would be distributed across many tables and relying on many foreign keys. 
+NoSQL has gained a footing in the database domain, solving problems in a different light than Relational databases. Neo4j, a NoSQL graph database takes a much different stance when viewing the world. ``Reality is a graph''\cite{neo4j:neo4j} is the mantra that Neo Technology takes when looking at data. This may be a greater fit for solving problems that involve deeply connected data which in a RDBMS would be distributed across many tables and relying on many foreign keys. \cite{webber:graph}
 
 Babel seeks to alleviate the problem of a company being locked-in to using a RDBMS. A company isn't going to throw away their data stored in a RDBMS to restart with a graph database even if it might speed up their query times. However, if given a tool that was to fully export their data to a Neo4j system, they might.
 
 \section{Babel}
+
+Babel seeks to be the tool to solve that problem. Given connection strings to both databases, it queries information from the SQL database, analyzes it, and creates an equivalent Neo4j database. Using the labels feature found in the most recent versions of Neo4j it can even create eqivalent indicies, allowing for fast and simple queries.
 
 \subsection{MS SQL data}
 
@@ -161,7 +163,13 @@ Things brings us to how we handle tables that have 3 or more foreign keys. Well 
 
 In this guide, I will be using an Urban Exploration database as an example. You don't need to have an understanding of what the database will represent or what the data means to understand how the conversions are going to be handled. Please refer to Figure 1 for the Entity Relationship Diagram for the database in this example.
 
-After running our SQL query on the database, we will be presented with the results that are in Figure 2. After viewing these results, it may become more clear how the data is going to be divided up. 
+After running our SQL query on the database, we will be presented with the results that are in Figure 2. After viewing these results, it may become more clear how the data is going to be divided up.
+
+Determing how to create the Neo4j database based off the query in Figure 2, we must look at how many foreign keys each table contains.  Using the foreign key cases descriped above, we can determine that the Comment table will become a relation with attributes Comment and TimeStamp, and will be pointing to the nodes Point of Interest and Person.  The Friend table will became a relation with no attributes connected to two seperate Person nodes.  The Guild table will become a node containing the attributes Description, Name, and PUsername. 
+
+Additionally, the Membership table will form a relationship connecting the Guild and Person nodes.  The Owns table will form a relation which related the Point of Interest node and the Person node.  Also, the Person table will become a node containing the attributed Name, Password, TimeStamp, and username. 
+
+Continuing with this trend, the Point of Interest table will form a node which contains the Code, Description, id, Latitude, Longitude, Name, and TimeStamp attributes.  The Rate table will form yet another relation which has the Rating attribute and connects the Person and Point of Interest nodes.  Lastly, the Visit table with form the final relation which again connects the Point of Interest and Person nodes.  After all is complete, we have just created the Neo4j equivalent database to the one display in Figure 1. 
 
 \begin{figure}
   \caption{Table Info from Query 1}
@@ -170,6 +178,9 @@ After running our SQL query on the database, we will be presented with the resul
 \end{figure}
 
 \section{Conclusions}
+
+Babel was created to aid in the transition from a typical RDBMS to a graph database format.  It allows companies to follow their innovative inspirations, and break stereotypical trends.  The accomplishment of Babel was not necessarily the code produced for the application, but perhaps the though process behind converting a relational database to a graph database.  Babel covers all ends of the spectrum and successfully manages to convert cases close to the extrema.
+
 
 \subsection{Future Additions}
 
